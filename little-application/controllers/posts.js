@@ -30,14 +30,20 @@ exports.getPost = async (req, res, next) => {
     try {
         const post = await Post.findById(req.params.id)
 
+        if (!post) {
+            return res.status(400).json({
+                success: false
+            })
+        }
         res.status(200).json({
             success: true,
             data: post
         })
     } catch (err) {
-        res.send(400).json({
-            success: false
-        });
+        // res.send(400).json({
+        //     success: false
+        // });
+        next(err);
     }
 }
 
