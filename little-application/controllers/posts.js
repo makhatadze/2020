@@ -1,3 +1,5 @@
+const Post = require('../models/Post')
+
 // @desc   Get all Posts
 // @route  Get /api/v1/posts
 // @access Public
