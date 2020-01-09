@@ -9,18 +9,14 @@ exports.getPosts = async (req, res, next) => {
         const post = await Post.find()
 
         if (!post) {
-            res.status(400).json({
-                success: false
-            })
+            return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
         }
         res.status(200).json({
             success: true,
             data: post
         })
     } catch (err) {
-        res.status(400).json({
-            success: false
-        })
+        next(err)
     }
 }
 
@@ -32,19 +28,15 @@ exports.getPost = async (req, res, next) => {
         const post = await Post.findById(req.params.id)
 
         if (!post) {
-            return res.status(400).json({
-                success: false
-            })
+            return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
         }
         res.status(200).json({
             success: true,
             data: post
         })
     } catch (err) {
-        // res.send(400).json({
-        //     success: false
-        // });
-        next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
+        // next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
+        next(err)
     }
 }
 
@@ -60,9 +52,7 @@ exports.createPost = async (req, res, next) => {
             data: post
         })
     } catch (err) {
-        res.status(400).json({
-            success: false
-        })
+        next(err)
     }
 }
 // @desc   Update  Post
@@ -70,20 +60,23 @@ exports.createPost = async (req, res, next) => {
 // @access Private
 exports.updatePost = async (req, res, next) => {
 
-    const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    })
-    if (!post) {
-        return res.status(400).json({
-            success: false
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
         })
+        if (!post) {
+            return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
+        }
+        res.status(200).json({
+            success: true,
+            data: post
+        })
+    } catch (err) {
+        next(err)
     }
 
-    res.status(200).json({
-        success: true,
-        data: post
-    })
+
 
 }
 // @desc   Delete Post
@@ -94,9 +87,7 @@ exports.deletePost = async (req, res, next) => {
         const post = await Post.findByIdAndDelete(req.params.id)
 
         if (!post) {
-            return res.status(400).json({
-                success: false
-            })
+            return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
         }
 
         res.status(200).json({
@@ -105,8 +96,6 @@ exports.deletePost = async (req, res, next) => {
             data: {}
         })
     } catch (err) {
-        res.status(400).json({
-            success: false
-        })
+        next(err)
     }
 }
