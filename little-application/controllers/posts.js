@@ -1,4 +1,5 @@
 const Post = require('../models/Post')
+const ErrorResponse = require('../utils/errorResponse')
 
 // @desc   Get all Posts
 // @route  Get /api/v1/posts
@@ -43,7 +44,7 @@ exports.getPost = async (req, res, next) => {
         // res.send(400).json({
         //     success: false
         // });
-        next(err);
+        next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
     }
 }
 
