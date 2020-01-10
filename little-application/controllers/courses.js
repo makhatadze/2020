@@ -16,7 +16,10 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
             post: req.params.postId
         })
     } else {
-        query = Course.find()
+        query = Course.find().populate({
+            path: 'post',
+            select: 'name description'
+        })
     }
 
     const courses = await query

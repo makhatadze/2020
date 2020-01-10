@@ -28,7 +28,7 @@ exports.getPosts = asyncHandler(async (req, res, next) => {
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
 
     // Finding resourse
-    query = Post.find(JSON.parse(queryStr))
+    query = Post.find(JSON.parse(queryStr)).populate('courses')
 
     // Select Fields
     if (req.query.select) {
@@ -135,11 +135,13 @@ exports.updatePost = asyncHandler(async (req, res, next) => {
 // @access Private
 exports.deletePost = asyncHandler(async (req, res, next) => {
 
-    const post = await Post.findByIdAndDelete(req.params.id)
+    const post = await Post.findById(req.params.id)
 
     if (!post) {
         return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
     }
+
+    post.remove()
 
     res.status(200).json({
         success: true,

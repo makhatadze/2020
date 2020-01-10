@@ -100,10 +100,18 @@ const PostSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, {
+  toJSON: {
+    virtuals: true
+  },
+  toObject: {
+    virtuals: true
+  }
+
 });
 
 // Create Post slug from the name
-PostSchema.pre('save', function(next) {
+PostSchema.pre('save', function (next) {
   this.slug = slugify(this.name, {
     lower: true
   });
@@ -111,7 +119,7 @@ PostSchema.pre('save', function(next) {
 });
 
 // Geocode & create location
-PostSchema.pre('save', async function(next) {
+PostSchema.pre('save', async function (next) {
   const loc = await geocoder.geocode(this.address);
   this.location = {
     type: 'Point',
@@ -128,5 +136,23 @@ PostSchema.pre('save', async function(next) {
   this.address = undefined;
   next();
 });
+
+// Cascade delete courses when a post is deleted
+PostSchema.pre('remove', async function (next) {
+  console.log(`Course being removed from post ${this._id}`)
+  await this.model('Course').deleteMany({
+    post: this._id
+  })
+  next()
+})
+
+// Reverse populate with virtuals
+PostSchema.virtual('courses', {
+  ref: 'Course',
+  localField: '_id',
+  foreignField: 'post',
+  justOne: false
+})
+
 
 module.exports = mongoose.model('Post', PostSchema);
