@@ -15,6 +15,7 @@ connectDB();
 
 // Route
 const posts = require('./routes/posts');
+const courses = require('./routes/courses');
 
 const app = express();
 
@@ -32,6 +33,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Mount roouters
 app.use('/api/v1/posts', posts);
+app.use('/api/v1/courses', courses);
 
 app.use(errorHandler)
 
