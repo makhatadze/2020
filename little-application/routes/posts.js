@@ -9,6 +9,10 @@ const {
     uploadPostPhoto
 } = require('../controllers/posts');
 
+const Post = require('../models/Post')
+
+const advancedResults = require('../middleware/advancedResult')
+
 
 // Include other ressource routers
 const courseRouter = require('./courses')
@@ -28,7 +32,7 @@ router
 
 router
     .route('/')
-    .get(getPosts)
+    .get(advancedResults(Post, 'courses'), getPosts)
     .post(createPost);
 router
     .route('/:id')
