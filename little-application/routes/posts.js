@@ -5,7 +5,8 @@ const {
     createPost,
     updatePost,
     deletePost,
-    getPostsInRadius
+    getPostsInRadius,
+    uploadPostPhoto
 } = require('../controllers/posts');
 
 
@@ -16,6 +17,10 @@ const router = express.Router();
 
 // Re-route into other resource routers
 router.use('/:postId/courses', courseRouter)
+
+router
+    .route('/:id/photo')
+    .put(uploadPostPhoto)
 
 router
     .route('/radius/:zipcode/:distance')

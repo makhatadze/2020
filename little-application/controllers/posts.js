@@ -1,3 +1,4 @@
+const path = require('path')
 const ErrorResponse = require('../utils/errorResponse')
 const asyncHandler = require('../middleware/async')
 const geocoder = require('../utils/geocoder')
@@ -184,5 +185,54 @@ exports.getPostsInRadius = asyncHandler(async (req, res, next) => {
         success: true,
         count: posts.length,
         data: posts
+    })
+})
+
+// @desc   Upload photo for Post
+// @route  PUT /api/v1/posts/:id/photo
+// @access Private
+exports.uploadPostPhoto = asyncHandler(async (req, res, next) => {
+
+    const post = await Post.findById(req.params.id)
+
+    if (!post) {
+        return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
+    }
+
+    if (!req.files) {
+        return next(new ErrorResponse(`Please upload Photo`, 400));
+    }
+
+    const file = req.files.file
+
+    // Make sure the image is a photo
+    if (!file.mimetype.startsWith('image')) {
+        return next(new ErrorResponse(`Please upload an Image file`, 404));
+    }
+
+    // Check filesize
+    if (file.size > process.env.MAX_FILE_UPLOAD) {
+        return next(new ErrorResponse(`Please upload an Image less than ${process.env.MAX_FILE_UPLOAD}`,
+            404));
+    }
+
+    // Create custom filename
+    file.name = `photo_${post._id}${path.parse(file.name).ext}`
+
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+        if (err) {
+            console.error(err)
+            return next(new ErrorResponse(`Problem with file upload`,
+                500));
+        }
+
+        await Post.findByIdAndUpdate(req.params.id, {
+            photo: file.name
+        })
+
+        res.status(200).json({
+            success: true,
+            data: file.name
+        })
     })
 })
