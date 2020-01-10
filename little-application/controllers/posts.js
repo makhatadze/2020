@@ -8,7 +8,15 @@ const Post = require('../models/Post')
 // @access Public
 exports.getPosts = asyncHandler(async (req, res, next) => {
 
-    const post = await Post.find()
+    let query;
+
+    let queryStr = JSON.stringify(req.query)
+
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`)
+
+    query = Post.find(JSON.parse(queryStr))
+
+    const post = await query
 
     res.status(200).json({
         success: true,
