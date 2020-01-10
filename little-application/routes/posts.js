@@ -4,10 +4,15 @@ const {
     getPost,
     createPost,
     updatePost,
-    deletePost
+    deletePost,
+    getPostsInRadius
 } = require('../controllers/posts');
 
 const router = express.Router();
+
+router
+    .route('/radius/:zipcode/:distance')
+    .get(getPostsInRadius)
 
 router
     .route('/')

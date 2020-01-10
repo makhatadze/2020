@@ -1,6 +1,7 @@
-const Post = require('../models/Post')
 const ErrorResponse = require('../utils/errorResponse')
 const asyncHandler = require('../middleware/async')
+const geocoder = require('../utils/geocoder')
+const Post = require('../models/Post')
 
 // @desc   Get all Posts
 // @route  Get /api/v1/posts
@@ -80,4 +81,40 @@ exports.deletePost = asyncHandler(async (req, res, next) => {
         data: {}
     })
 
+})
+
+// @desc   Get Post within a radius
+// @route  Get /api/vs/posts/radius/:zipcode/:distance
+// @access Private
+exports.getPostsInRadius = asyncHandler(async (req, res, next) => {
+    const {
+        zipcode,
+        distance
+    } = req.params
+
+    // Get lat/lng from geocoder
+    const loc = await geocoder.geocode(zipcode)
+    const lat = loc[0].latitude
+    const lng = loc[0].longitude
+
+    // Calc radius using radians
+    // Divide distance by radius of Earth
+    // Earth Radius = 3,963 miles / 6,378 km
+    const radius = distance / 6378
+
+    const posts = await Post.find({
+        location: {
+            $geoWithin: {
+                $centerSphere: [
+                    [lng, lat], radius
+                ]
+            }
+        }
+    })
+
+    res.status(200).json({
+        success: true,
+        count: posts.length,
+        data: posts
+    })
 })
