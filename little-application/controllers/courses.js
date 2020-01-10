@@ -1,11 +1,12 @@
 const ErrorResponse = require('../utils/errorResponse')
 const asyncHandler = require('../middleware/async')
 const Course = require('../models/Course')
+const Post = require('../models/Post')
 
 
 // @desc Get courses
 // @route GET /api/v1/courses
-// @route GET /api/v1/bootcamps/:postId/courses
+// @route GET /api/v1/posts/:postId/courses
 // @access Public
 
 exports.getCourses = asyncHandler(async (req, res, next) => {
@@ -28,6 +29,51 @@ exports.getCourses = asyncHandler(async (req, res, next) => {
         success: true,
         count: courses.length,
         data: courses
+    })
+
+})
+
+// @desc Get course
+// @route GET /api/v1/courses/:id
+// @access Public
+
+exports.getCourse = asyncHandler(async (req, res, next) => {
+
+    const course = await Course.findById(req.params.id).populate({
+        path: 'post',
+        select: 'name description'
+    })
+
+    if (!course) {
+        return next(new ErrorResponse(`No course with the id of ${req.params.id}`), 404)
+    }
+
+    res.status(200).json({
+        success: true,
+        data: course
+    })
+
+})
+
+// @desc Add course
+// @route POST /api/v1/posts/:postId/courses
+// @access Private
+
+exports.addCourse = asyncHandler(async (req, res, next) => {
+    req.body.post = req.params.postId
+
+
+    const post = await Post.findById(req.params.postId)
+
+    if (!post) {
+        return next(new ErrorResponse(`No Post with the id of ${req.params.postId}`), 404)
+    }
+
+    const course = await Course.create(req.body)
+
+    res.status(200).json({
+        success: true,
+        data: course
     })
 
 })
