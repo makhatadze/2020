@@ -18,6 +18,7 @@ connectDB();
 // Route
 const posts = require('./routes/posts');
 const courses = require('./routes/courses');
+const auth = require('./routes/auth')
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 // Mount roouters
 app.use('/api/v1/posts', posts);
 app.use('/api/v1/courses', courses);
+app.use('/api/v1/auth', auth);
 
 app.use(errorHandler)
 
