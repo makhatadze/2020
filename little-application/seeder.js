@@ -12,6 +12,7 @@ dotenv.config({
 // Load models
 const Post = require('./models/Post')
 const Course = require('./models/Course')
+const User = require('./models/User')
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -24,12 +25,14 @@ mongoose.connect(process.env.MONGO_URI, {
 // Read JSON files
 const posts = JSON.parse(fs.readFileSync(`${__dirname}/_data/posts.json`, 'utf-8'))
 const courses = JSON.parse(fs.readFileSync(`${__dirname}/_data/courses.json`, 'utf-8'))
+const users = JSON.parse(fs.readFileSync(`${__dirname}/_data/users.json`, 'utf-8'))
 
 // Import into Db
 const importData = async () => {
     try {
         await Post.create(posts)
         await Course.create(courses)
+        await User.create(users)
         console.log('Data imported...'.green.inverse)
         process.exit()
     } catch (err) {
@@ -42,6 +45,7 @@ const deleteData = async () => {
     try {
         await Post.deleteMany()
         await Course.deleteMany()
+        await User.deleteMany()
         console.log('Data Destroyed...'.red.inverse)
         process.exit()
     } catch (err) {

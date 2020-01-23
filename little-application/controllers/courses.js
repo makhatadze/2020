@@ -52,12 +52,17 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 
 exports.addCourse = asyncHandler(async (req, res, next) => {
     req.body.post = req.params.postId
-
+    req.body.user = req.user.id;
 
     const post = await Post.findById(req.params.postId)
 
     if (!post) {
         return next(new ErrorResponse(`No Post with the id of ${req.params.postId}`), 404)
+    }
+
+    // Make sure user is Course owner
+    if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.user.id} is not authorized to update a course to ${post._id}`, 404));
     }
 
     const course = await Course.create(req.body)
@@ -79,6 +84,11 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 
     if (!course) {
         return next(new ErrorResponse(`No Course with the id of ${req.params.id}`), 404)
+    }
+
+    // Make sure user is Post owner
+    if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authorized to update this course`, 404));
     }
 
     course = await Course.findByIdAndUpdate(req.params.id, req.body, {
@@ -103,6 +113,11 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 
     if (!course) {
         return next(new ErrorResponse(`No Course with the id of ${req.params.id}`), 404)
+    }
+
+    // Make sure user is Post owner
+    if (course.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authorized to delete this course`, 404));
     }
 
     await course.remove()

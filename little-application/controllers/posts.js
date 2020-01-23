@@ -33,6 +33,18 @@ exports.getPost = asyncHandler(async (req, res, next) => {
 // @access Private
 exports.createPost = asyncHandler(async (req, res, next) => {
 
+    // Add user to req,body
+    req.body.user = req.user.id;
+
+    // Check for publieshed post
+    const publieshedPost = await Post.findOne({
+        user: req.user.id
+    })
+
+    // If the user is not an admin, they can only add one post
+    if (publieshedPost && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`The user with ID ${req.user.id} has already published a post`, 400))
+    }
     const post = await Post.create(req.body);
 
     res.status(201).json({
@@ -45,13 +57,19 @@ exports.createPost = asyncHandler(async (req, res, next) => {
 // @route  PUT /api/v1/posts/:id
 // @access Private
 exports.updatePost = asyncHandler(async (req, res, next) => {
-    const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true
-    })
+    let post = await Post.findById(req.params.id)
     if (!post) {
         return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
     }
+    // Make sure user is Post owner
+    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authorized to update this bootcamp`, 404));
+    }
+
+    post = await Post.findOneAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true
+    })
     res.status(200).json({
         success: true,
         data: post
@@ -67,6 +85,11 @@ exports.deletePost = asyncHandler(async (req, res, next) => {
 
     if (!post) {
         return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
+    }
+
+    // Make sure user is Post owner
+    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authorized to delete this bootcamp`, 404));
     }
 
     post.remove()
@@ -125,6 +148,11 @@ exports.uploadPostPhoto = asyncHandler(async (req, res, next) => {
     if (!post) {
         return next(new ErrorResponse(`Post not fount with id of ${req.params.id}`, 404));
     }
+    // Make sure user is Post owner
+    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
+        return next(new ErrorResponse(`User ${req.params.id} is not authorized to update this post`, 404));
+    }
+
 
     if (!req.files) {
         return next(new ErrorResponse(`Please upload Photo`, 400));
