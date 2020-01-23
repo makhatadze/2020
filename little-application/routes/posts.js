@@ -19,12 +19,18 @@ const courseRouter = require('./courses')
 
 const router = express.Router();
 
+// Protect authentication
+const {
+    protect,
+    authorize
+} = require('../middleware/auth')
+
 // Re-route into other resource routers
 router.use('/:postId/courses', courseRouter)
 
 router
     .route('/:id/photo')
-    .put(uploadPostPhoto)
+    .put(protect, authorize('publisher', 'admin'), uploadPostPhoto)
 
 router
     .route('/radius/:zipcode/:distance')
@@ -33,11 +39,11 @@ router
 router
     .route('/')
     .get(advancedResults(Post, 'courses'), getPosts)
-    .post(createPost);
+    .post(protect, authorize('publisher', 'admin'), createPost);
 router
     .route('/:id')
     .get(getPost)
-    .put(updatePost)
-    .delete(deletePost);
+    .put(protect, authorize('publisher', 'admin'), updatePost)
+    .delete(protect, authorize('publisher', 'admin'), deletePost);
 
 module.exports = router;
