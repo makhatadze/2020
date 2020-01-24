@@ -16,6 +16,7 @@ const advancedResults = require('../middleware/advancedResult')
 
 // Include other ressource routers
 const courseRouter = require('./courses')
+const reviewRouter = require('./reviews')
 
 const router = express.Router();
 
@@ -27,6 +28,7 @@ const {
 
 // Re-route into other resource routers
 router.use('/:postId/courses', courseRouter)
+router.use('/:postId/reviews', reviewRouter)
 
 router
     .route('/:id/photo')
