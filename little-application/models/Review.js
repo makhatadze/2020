@@ -40,6 +40,40 @@ ReviewSchema.index({
 }, {
     unique: true
 })
+// Static method to get avg of rating and save
+ReviewSchema.statics.getAverageRating = async function (postId) {
+    const obj = await this.aggregate([{
+            $match: {
+                post: postId
+            }
+        },
+        {
+            $group: {
+                _id: '$post',
+                averageRating: {
+                    $avg: '$rating'
+                }
+            }
+        }
+    ]);
 
+    try {
+        await this.model('Post').findByIdAndUpdate(postId, {
+            averageRating: obj[0].averageRating
+        });
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+// Call getAverageCost after save
+ReviewSchema.post('save', function () {
+    this.constructor.getAverageRating(this.post);
+});
+
+// Call getAverageCost before remove
+ReviewSchema.pre('remove', function () {
+    this.constructor.getAverageRating(this.post);
+});
 
 module.exports = mongoose.model('Review', ReviewSchema)
