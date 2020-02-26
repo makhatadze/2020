@@ -1,0 +1,54 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.banner {
+    background-image: linear-gradient(rgba(14,14,14,0.678),rgba(245,98,12,0.904)),url(./img/backgroun.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+.banner h2 {
+    color: rgba(80, 255,11, 0.733);
+    margin-top: 230px;
+    margin-left: 120px;
+    font-size: 100px;
+    font-family: 'Times New Roman', Times, serif;
+
+}
+.banner p {
+    color: #fff;
+    margin-left: 120px;
+    font-size: 20px;
+    font-family: monospace;
+}
+.banner .btn {
+    margin-left: 120px;
+}
+span {
+    color: #fff;
+}
+span::before{
+    content: '';
+    animation: animate infinite 8s;
+}
+@keyframes animate{
+    0%{
+        content:'PhP Developer'
+    }
+    20%{
+        content:'Designer'
+    }
+    40%{
+        content:'President'
+    }
+    60%{
+        content:'World Man'
+    }
+    80%{
+        content:'Freelancer'
+    }
+    100%{
+        content:'Web Designer'
+    }
+}
